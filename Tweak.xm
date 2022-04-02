@@ -1,17 +1,16 @@
-#define DEFAULT_RATE 2.0f
+#import <Foundation/Foundation.h>
 
+#define DEFAULT_RATE 2.0f
 
 @interface YTVarispeedSwitchControllerOption : NSObject
 - (id)initWithTitle:(id)title rate:(float)rate;
 @end
-
 
 @interface YTPlayerViewController : NSObject
 @property id activeVideo;
 @property float playbackRate;
 - (void)singleVideo:(id)video playbackRateDidChange:(float)rate;
 @end
-
 
 @interface MLHAMQueuePlayer : NSObject
 @property id playerEventCenter;
@@ -20,21 +19,17 @@
 - (void)internalSetRate;
 @end
 
-
 @interface MLPlayerStickySettings : NSObject
 - (void)setRate:(float)rate;
 @end
-
 
 @interface MLPlayerEventCenter : NSObject
 - (void)broadcastRateChange:(float)rate;
 @end
 
-
 @interface YTSingleVideoController : NSObject
 - (void)playerRateDidChange:(float)rate;
 @end
-
 
 @interface HAMPlayerInternal : NSObject
 - (void)setRate:(float)rate;
@@ -42,12 +37,11 @@
 
 
 %hook YTVarispeedSwitchController
-
 - (id)init {
 	id result = %orig;
 
-	const int size = 10;
-	float speeds[] = {0.5, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 3.5, 4.0};
+	const int size = 12;
+	float speeds[] = {0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0};
 	id varispeedSwitchControllerOptions[size];
 
 	for (int i = 0; i < size; ++i) {
@@ -61,14 +55,29 @@
 
 	return result;
 }
-
 %end
 
+%hook MLHAMQueuePlayer
+- (void)setRate:(float)rate {
+	MSHookIvar<float>(self, "_rate") = rate;
+	MSHookIvar<float>(self, "_preferredRate") = rate;
 
+	id player = MSHookIvar<HAMPlayerInternal *>(self, "_player");
+	[player setRate: rate];
+	
+	id stickySettings = MSHookIvar<MLPlayerStickySettings *>(self, "_stickySettings");
+	[stickySettings setRate: rate];
+
+	[self.playerEventCenter broadcastRateChange: rate];
+
+	YTSingleVideoController *singleVideoController = self.delegate;
+	[singleVideoController playerRateDidChange: rate];
+}
+%end 
+
+/*
 %hook YTPlayerViewController
-
 %property float playbackRate;
-
 - (id)initWithServiceRegistryScope:(id)serviceRegistryScope parentResponder:(id)parentResponder overlayFactory:(id)overlayFactory {
 	float savedRate = [[NSUserDefaults standardUserDefaults] floatForKey:@"YoutubeSpeed_PlaybackRate"];
 	self.playbackRate = savedRate == 0 ? DEFAULT_RATE : savedRate;
@@ -93,32 +102,4 @@
 }
 
 %end
-
-
-%hook MLHAMQueuePlayer
-
-- (id)initWithStickySettings:(id)stickySettings playerViewProvider:(id)playerViewProvider {
-	id result = %orig;
-	float savedRate = [[NSUserDefaults standardUserDefaults] floatForKey:@"YoutubeSpeed_PlaybackRate"];
-	[self setRate: savedRate == 0 ? DEFAULT_RATE : savedRate];
-	return result;
-}
-
-- (void)setRate:(float)rate {
-	MSHookIvar<float>(self, "_rate") = rate;
-	MSHookIvar<float>(self, "_preferredRate") = rate;
-
-	id player = MSHookIvar<HAMPlayerInternal *>(self, "_player");
-	[player setRate: rate];
-	
-	id stickySettings = MSHookIvar<MLPlayerStickySettings *>(self, "_stickySettings");
-	[stickySettings setRate: rate];
-
-	[self.playerEventCenter broadcastRateChange: rate];
-
-	YTSingleVideoController *singleVideoController = self.delegate;
-	[singleVideoController playerRateDidChange: rate];
-}
-
-%end
-
+*/
