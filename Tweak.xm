@@ -75,31 +75,26 @@
 }
 %end 
 
-/*
+
 %hook YTPlayerViewController
 %property float playbackRate;
-- (id)initWithServiceRegistryScope:(id)serviceRegistryScope parentResponder:(id)parentResponder overlayFactory:(id)overlayFactory {
-	float savedRate = [[NSUserDefaults standardUserDefaults] floatForKey:@"YoutubeSpeed_PlaybackRate"];
-	self.playbackRate = savedRate == 0 ? DEFAULT_RATE : savedRate;
-	return %orig;
-}
-
 - (void)singleVideo:(id)video playbackRateDidChange:(float)rate {
 	%orig;
 }
-
-- (float)currentPlaybackRateForVarispeedSwitchController:(id)varispeedSwitchController {
-	return self.playbackRate;
-}
-
-- (void)varispeedSwitchController:(id)varispeedSwitchController didSelectRate:(float)rate {
-	self.playbackRate = rate;
-	[[NSUserDefaults standardUserDefaults] setFloat: rate forKey:@"YoutubeSpeed_PlaybackRate"];
-	if (rate > 2.0f) {
-		[self singleVideo:self.activeVideo playbackRateDidChange: rate];
-	}
-	%orig;
-}
-
+// - (id)initWithServiceRegistryScope:(id)serviceRegistryScope parentResponder:(id)parentResponder overlayFactory:(id)overlayFactory {
+// 	float savedRate = [[NSUserDefaults standardUserDefaults] floatForKey:@"YoutubeSpeed_PlaybackRate"];
+// 	self.playbackRate = savedRate == 0 ? DEFAULT_RATE : savedRate;
+// 	return %orig;
+// }
+// - (float)currentPlaybackRateForVarispeedSwitchController:(id)varispeedSwitchController {
+// 	return self.playbackRate;
+// }
+// - (void)varispeedSwitchController:(id)varispeedSwitchController didSelectRate:(float)rate {
+// 	self.playbackRate = rate;
+// 	[[NSUserDefaults standardUserDefaults] setFloat: rate forKey:@"YoutubeSpeed_PlaybackRate"];
+// 	if (rate > 2.0f) {
+// 		[self singleVideo:self.activeVideo playbackRateDidChange: rate];
+// 	}
+// 	%orig;
+// }
 %end
-*/
