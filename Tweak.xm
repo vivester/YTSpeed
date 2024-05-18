@@ -39,7 +39,7 @@
 	id varispeedSwitchControllerOptions[size];
 
 	for (int i = 0; i < size; ++i) {
-		id title = [NSString stringWithFormat:@"%.2fx", speeds[i]];
+		id title = [NSString stringWithFormat:@"%.1fx", speeds[i]];
 		varispeedSwitchControllerOptions[i] = [[%c(YTVarispeedSwitchControllerOption) alloc] initWithTitle:title rate:speeds[i]];
 	}
 
